@@ -1,0 +1,168 @@
+library(rgl)
+library(tidyverse)
+
+solo_pca1 <- c(-2.6271792, -2.5363129, -2.7514891, -2.6543522, -2.8443876, -2.5537141, -2.5142610, -2.5134899, -2.5409157, -2.7452784, -2.5962814,  1.4087037, -2.1410362, -1.2547936, -1.8609601, -2.7563009, -2.9039708, -2.7652399, -3.2030846, -0.5356784,  4.6165335, 4.8449165,  5.9497271,  5.3865338,  3.6281874,  4.1814002,  2.3386568,  4.5724733, 5.5287756,  3.8428181)
+
+fire_freq <- c(5,  6,  3,  7,  7,  5,  6,  4, 10,  9,  1,  1,  1,  3,  3,  8,  3,  3,  3,  3,  2,  0,  0,  0,  0,  0,  0,  0,  0,  0)
+
+Coupling <- c(0.1854637, 0.1932660, 0.2353297, 0.1636364, 0.2101695, 0.1717172, 0.1772535, 0.1851852, 0.2233766, 0.2012987, 0.3196961, 0.2894737, 0.2232305, 0.2493734, 0.2155388, 0.2776154, 0.2086499, 0.2836158, 0.2655367, 0.3009936, 0.4410163, 0.4337568, 0.5366001, 0.4761041, 0.2099214, 0.1615245, 0.2147610, 0.5406195, 0.3369631, 0.3699591)
+
+TWI = c(9.57246,  8.04190,  9.77368,  8.60261,  8.50546,  7.69954,  8.59316,  8.71555,  9.33497, 10.10562, 15.47934, 15.54112, 15.16976, 15.80055,  6.28304, 17.99099, 21.76680, 21.76680, 13.83179,  8.68463,  6.98991,  7.10205,  6.80751,  6.71679, 7.17428,  6.86830,  5.46798,  6.03047, 10.88536,  6.56497)
+
+meanEVI2 <- c(0.3571224, 0.3480358, 0.3488734, 0.3976129, 0.3664508, 0.4207203, 0.3449679, 0.3728237, 0.3785181, 0.3684518, 0.4768151, 0.5213511, 0.4448756, 0.5375663, 0.5237261, 0.4915071, 0.4189780, 0.5029874, 0.4674733, 0.5231580, 0.4860314, 0.5068500, 0.4633787, 0.4698608, 0.5658845, 0.5717008, 0.5896999, 0.5071163, 0.5266859, 0.4988382)
+
+tree_cover <- c(42.8400, 21.4200, 14.7900,  7.1400,  3.6312, 68.3400,  4.5900,  6.6300, 16.8300, 27.0300, 86.7000, 99.4500, 96.3900, 94.2800, 97.9200, 94.0200, 96.8800, 92.9800, 95.0600, 84.6600, 74.5000, 72.4300, 74.4300, 81.1800, NA, NA, NA, 67.7500, 78.1200, 73.6800)
+
+deciduousness <- read.table("/home/marcio/Documentos/data/analises_tese/dados.txt", h=T) %>% select("phenology")
+
+dados <- cbind(Coupling, meanEVI2, tree_cover, deciduousness,TWI, PC1_solo = solo_pca1, Fire_freq = fire_freq, Vegetation_type = c(rep("savanna", 10), rep("gallery_forest", 10), rep("dry_forest", 10))) %>% data.frame
+
+  
+
+# Acoplamento
+
+plot3d(TWI, solo_pca1, Coupling, xlab = "", ylab = "", zlab = "",
+       xlim = c(0,23),
+       axes = FALSE,
+       size = .85, type = "s", lit = FALSE,
+       col = factor(c(rep("orange3", 10), rep("black", 10), rep("purple", 10))))
+
+
+interleave <- function(v1, v2)  as.vector(rbind(v1,v2))
+
+
+segments3d(interleave(TWI,   TWI),
+           interleave(solo_pca1, solo_pca1),
+           interleave(Coupling,  0),
+           alpha = 0.4, col = "blue")
+
+
+rgl.bbox(color = "grey50",
+         emission = "grey50",
+         xlen = 0, ylen = 0, zlen = 0)
+
+
+rgl.material(color = "black")
+
+
+axes3d(edges = c("x--", "y+-", "z--"),
+       ntick = 12,
+       cex = .75)
+
+
+mtext3d("TWI",       edge = "x--", line = 2)
+mtext3d("PC1-solo", edge = "y+-", line = 3.5)
+mtext3d("Coupling",          edge = "z--", line = 3)
+
+movie3d(spin3d(axis = c(0,0,1), rpm = 4), duration = 10, fps = 50)
+
+
+
+
+  # EVI2 médio
+
+plot3d(TWI, solo_pca1, meanEVI2, xlab = "", ylab = "", zlab = "",
+       axes = FALSE,
+       zlim = c(0,1),
+       size = .85, type = "s", lit = FALSE,
+       col = factor(c(rep("orange3", 10), rep("black", 10), rep("purple", 10))))
+
+
+interleave <- function(v1, v2)  as.vector(rbind(v1,v2))
+
+
+segments3d(interleave(TWI,   TWI),
+           interleave(solo_pca1, solo_pca1),
+           interleave(meanEVI2,  0),
+           alpha = 0.4, col = "blue")
+
+rgl.bbox(color = "grey50",
+         emission = "grey50",
+         xlen = 0, ylen = 0, zlen = 0)
+
+
+rgl.material(color = "black")
+
+
+axes3d(edges = c("x--", "y+-", "z--"),
+       ntick = 6,
+       cex = .75)
+
+
+mtext3d("TWI",       edge = "x--", line = 2)
+mtext3d("PC1-solo", edge = "y+-", line = 3.5)
+mtext3d("Mean EVI2",          edge = "z--", line = 3)
+movie3d(spin3d(axis = c(0,0,1), rpm = 4), duration = 10, fps = 50)
+
+
+# Tree cover
+
+plot3d(TWI, solo_pca1, tree_cover, xlab = "", ylab = "", zlab = "",
+       axes = FALSE,
+       size = .85, type = "s", lit = FALSE,
+       col = factor(c(rep("orange3", 10), rep("black", 10), rep("purple", 10))))
+
+
+interleave <- function(v1, v2)  as.vector(rbind(v1,v2))
+
+
+segments3d(interleave(TWI,   TWI),
+           interleave(solo_pca1, solo_pca1),
+           interleave(tree_cover,  0),
+           alpha = 0.4, col = "blue")
+
+
+rgl.bbox(color = "grey50",
+         emission = "grey50",
+         xlen = 0, ylen = 0, zlen = 0)
+
+
+rgl.material(color = "black")
+
+
+axes3d(edges = c("x--", "y+-", "z--"),
+       ntick = 6,
+       cex = .75)
+
+mtext3d("TWI",       edge = "x--", line = 2)
+mtext3d("PC1-solo", edge = "y+-", line = 3.5)
+mtext3d("Tree Cover",          edge = "z--", line = 3)
+
+movie3d(spin3d(axis = c(0,0,1), rpm = 4), duration = 10, fps = 50)
+
+# Deciduidade
+
+plot3d(TWI, solo_pca1, deciduousness, xlab = "", ylab = "", zlab = "",
+              axes = FALSE,
+       size = .85, type = "s", lit = FALSE,
+       col = factor(c(rep("orange3", 10), rep("black", 10), rep("purple", 10))))
+
+
+interleave <- function(v1, v2)  as.vector(rbind(v1,v2))
+
+
+segments3d(interleave(TWI,   TWI),
+           interleave(solo_pca1, solo_pca1),
+           interleave(deciduousness,  0),
+           alpha = 0.4, col = "blue")
+
+
+rgl.bbox(color = "grey50",
+         emission = "grey50",
+         xlen = 0, ylen = 0, zlen = 0)
+
+
+rgl.material(color = "black")
+
+
+axes3d(edges = c("x--", "y+-", "z--"),
+       ntick = 12,
+       cex = .75)
+
+
+mtext3d("TWI",       edge = "x--", line = 2)
+mtext3d("PC1-solo", edge = "y+-", line = 3.5)
+mtext3d("Deciduousness",          edge = "z--", line = 3)
+
+movie3d(spin3d(axis = c(0,0,1), rpm = 4), duration = 10, fps = 50)
+
