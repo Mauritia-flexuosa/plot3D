@@ -1,4 +1,15 @@
+---
+title: Plots 3D
+output: html_document
+---
+
+```{r, setup ,echo=FALSE, include=TRUE}
 library(rgl)
+knitr::knit_hooks$set(webgl = hook_webgl)
+```
+
+## Acoplamento
+```{r, test-rgl, webgl=TRUE, echo=FALSE, include=TRUE, warning=FALSE, message=FALSE}
 library(tidyverse)
 
 solo_pca1 <- c(-2.6271792, -2.5363129, -2.7514891, -2.6543522, -2.8443876, -2.5537141, -2.5142610, -2.5134899, -2.5409157, -2.7452784, -2.5962814,  1.4087037, -2.1410362, -1.2547936, -1.8609601, -2.7563009, -2.9039708, -2.7652399, -3.2030846, -0.5356784,  4.6165335, 4.8449165,  5.9497271,  5.3865338,  3.6281874,  4.1814002,  2.3386568,  4.5724733, 5.5287756,  3.8428181)
@@ -17,10 +28,7 @@ deciduousness <- read.table("/home/marcio/Documentos/data/analises_tese/dados.tx
 
 dados <- cbind(Coupling, meanEVI2, tree_cover, deciduousness,TWI, PC1_solo = solo_pca1, Fire_freq = fire_freq, Vegetation_type = c(rep("savanna", 10), rep("gallery_forest", 10), rep("dry_forest", 10))) %>% data.frame
 
-  
 
-# Acoplamento
-library(rgl)
 rgl.init()
 
 plot3d(TWI, solo_pca1, Coupling, xlab = "", ylab = "", zlab = "",
@@ -63,13 +71,15 @@ a <- coefs["TWI"]; b <- coefs["PC1_solo"]; c <- -1
 d <- coefs["(Intercept)"]
 rgl.planes(a, b, c, d, alpha=0.2, color = "#D95F02")
 
-movie3d(spin3d(axis = c(0,0,1), rpm = 4), duration = 10, fps = 50)
+# movie3d(spin3d(axis = c(0,0,1), rpm = 4), duration = 10, fps = 50)
 
-writeWebGL(dir = "webGL", filename = file.path(dir, "index.html"))
-?rgl.surface
 
-  # EVI2 médio
+```
 
+## EVI2 médio
+
+```{r, test-rgl2, webgl=TRUE, echo=FALSE, include=TRUE}
+rgl.init()
 plot3d(TWI, solo_pca1, meanEVI2, xlab = "", ylab = "", zlab = "",
        axes = FALSE,
        zlim = c(0,1),
@@ -97,14 +107,26 @@ axes3d(edges = c("x--", "y+-", "z--"),
        ntick = 6,
        cex = .75)
 
+m3 <- lm(formula = meanEVI2 ~ TWI + PC1_solo, data = dados)
+coefs <- coef(m3)
+a <- coefs["TWI"]; b <- coefs["PC1_solo"]; c <- -1
+d <- coefs["(Intercept)"]
+rgl.planes(a, b, c, d, alpha=0.2, color = "#D95F02")
+
 
 mtext3d("TWI",       edge = "x--", line = 2)
-mtext3d("PC1-solo", edge = "y+-", line = 3.5)
+mtext3d("PC1-solo", edge = "y+-", line = 3)
 mtext3d("Mean EVI2",          edge = "z--", line = 3)
-movie3d(spin3d(axis = c(0,0,1), rpm = 4), duration = 10, fps = 50)
 
 
-# Tree cover
+```
+
+
+## Tree cover
+
+```{r, test-rgl3, webgl=TRUE, echo=FALSE, include=TRUE}
+
+rgl.init()
 
 plot3d(TWI, solo_pca1, tree_cover, xlab = "", ylab = "", zlab = "",
        axes = FALSE,
@@ -133,45 +155,17 @@ axes3d(edges = c("x--", "y+-", "z--"),
        ntick = 6,
        cex = .75)
 
+m3 <- lm(formula = tree_cover ~ TWI + PC1_solo, data = dados)
+coefs <- coef(m3)
+a <- coefs["TWI"]; b <- coefs["PC1_solo"]; c <- -1
+d <- coefs["(Intercept)"]
+rgl.planes(a, b, c, d, alpha=0.2, color = "#D95F02")
+
+
 mtext3d("TWI",       edge = "x--", line = 2)
 mtext3d("PC1-solo", edge = "y+-", line = 3.5)
 mtext3d("Tree Cover",          edge = "z--", line = 3)
 
-movie3d(spin3d(axis = c(0,0,1), rpm = 4), duration = 10, fps = 50)
 
-# Deciduidade
-
-plot3d(TWI, solo_pca1, deciduousness, xlab = "", ylab = "", zlab = "",
-              axes = FALSE,
-       size = .85, type = "s", lit = FALSE,
-       col = factor(c(rep("orange3", 10), rep("black", 10), rep("purple", 10))))
-
-
-interleave <- function(v1, v2)  as.vector(rbind(v1,v2))
-
-
-segments3d(interleave(TWI,   TWI),
-           interleave(solo_pca1, solo_pca1),
-           interleave(deciduousness,  0),
-           alpha = 0.4, col = "blue")
-
-
-rgl.bbox(color = "grey50",
-         emission = "grey50",
-         xlen = 0, ylen = 0, zlen = 0)
-
-
-rgl.material(color = "black")
-
-
-axes3d(edges = c("x--", "y+-", "z--"),
-       ntick = 12,
-       cex = .75)
-
-
-mtext3d("TWI",       edge = "x--", line = 2)
-mtext3d("PC1-solo", edge = "y+-", line = 3.5)
-mtext3d("Deciduousness",          edge = "z--", line = 3)
-
-movie3d(spin3d(axis = c(0,0,1), rpm = 4), duration = 10, fps = 50)
+```
 
